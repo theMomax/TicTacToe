@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A59D17B2232A2D9700A29184 /* Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = A59D17B1232A2D9700A29184 /* Controller.swift */; };
 		A5B56D722323962300745758 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5B56D712323962300745758 /* AppDelegate.swift */; };
 		A5B56D742323962300745758 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5B56D732323962300745758 /* SceneDelegate.swift */; };
 		A5B56D772323962300745758 /* TicTacToe.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = A5B56D752323962300745758 /* TicTacToe.xcdatamodeld */; };
@@ -16,6 +17,8 @@
 		A5B56D812323962500745758 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A5B56D7F2323962500745758 /* LaunchScreen.storyboard */; };
 		A5B56D8C2323962500745758 /* TicTacToeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5B56D8B2323962500745758 /* TicTacToeTests.swift */; };
 		A5B56D972323962500745758 /* TicTacToeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5B56D962323962500745758 /* TicTacToeUITests.swift */; };
+		A5B56DA62323965000745758 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5B56DA42323965000745758 /* Player.swift */; };
+		A5B56DA72323965000745758 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5B56DA52323965000745758 /* Model.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +39,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A59D17B1232A2D9700A29184 /* Controller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Controller.swift; sourceTree = "<group>"; };
 		A5B56D6E2323962300745758 /* TicTacToe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TicTacToe.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A5B56D712323962300745758 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A5B56D732323962300745758 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -51,6 +55,8 @@
 		A5B56D922323962500745758 /* TicTacToeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TicTacToeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A5B56D962323962500745758 /* TicTacToeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TicTacToeUITests.swift; sourceTree = "<group>"; };
 		A5B56D982323962500745758 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A5B56DA42323965000745758 /* Player.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
+		A5B56DA52323965000745758 /* Model.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,6 +107,8 @@
 		A5B56D702323962300745758 /* TicTacToe */ = {
 			isa = PBXGroup;
 			children = (
+				A5B56DA52323965000745758 /* Model.swift */,
+				A5B56DA42323965000745758 /* Player.swift */,
 				A5B56D712323962300745758 /* AppDelegate.swift */,
 				A5B56D732323962300745758 /* SceneDelegate.swift */,
 				A5B56D782323962300745758 /* ContentView.swift */,
@@ -109,6 +117,7 @@
 				A5B56D822323962500745758 /* Info.plist */,
 				A5B56D752323962300745758 /* TicTacToe.xcdatamodeld */,
 				A5B56D7C2323962500745758 /* Preview Content */,
+				A59D17B1232A2D9700A29184 /* Controller.swift */,
 			);
 			path = TicTacToe;
 			sourceTree = "<group>";
@@ -273,7 +282,10 @@
 				A5B56D772323962300745758 /* TicTacToe.xcdatamodeld in Sources */,
 				A5B56D722323962300745758 /* AppDelegate.swift in Sources */,
 				A5B56D792323962300745758 /* ContentView.swift in Sources */,
+				A5B56DA72323965000745758 /* Model.swift in Sources */,
+				A5B56DA62323965000745758 /* Player.swift in Sources */,
 				A5B56D742323962300745758 /* SceneDelegate.swift in Sources */,
+				A59D17B2232A2D9700A29184 /* Controller.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
