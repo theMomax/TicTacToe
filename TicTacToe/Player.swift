@@ -20,6 +20,29 @@ extension Player {
     func accept(_ outcome: Outcome) {}
 }
 
+extension Player {
+    
+    static func playername(of player: Player) -> String {
+        
+        var playername = "unknown"
+        
+        switch player {
+        case _ as UIPlayer:
+            playername = "You"
+        case _ as AIPlayer:
+            playername = "Robot"
+        case _ as AlgorithmicPlayer:
+            playername = "Math"
+        case _ as RandomPlayer:
+            playername = "Drunk Fool"
+        default:
+            playername = "unknown"
+        }
+        return playername
+    }
+    
+}
+
 
 class RandomPlayer: Player {
     

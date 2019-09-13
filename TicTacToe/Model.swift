@@ -7,9 +7,48 @@
 //
 
 import Foundation
+import SwiftUI
 
 enum Position: Int, CaseIterable {
     case topLeft, top, topRight, midLeft, mid, midRight, bottomLeft, bottom, bottomRight
+    
+    func row() -> [Position] {
+        var row: [Position] = []
+        
+        let first = Position.init(rawValue: rawValue - (rawValue % 3))!
+        row.append(first)
+        row.append(Position.init(rawValue: first.rawValue + 1)!)
+        row.append(Position.init(rawValue: first.rawValue + 2)!)
+        
+        return row
+    }
+    
+    static func rows() -> [[Position]] {
+        return [Position.top.row(), Position.mid.row(), Position.bottom.row()]
+    }
+    
+    func column() -> [Position] {
+        var column: [Position] = []
+        
+        var pval = rawValue
+        while pval >= 3 {
+            pval -= 3
+        }
+        
+        column.append(Position.init(rawValue: pval)!)
+        column.append(Position.init(rawValue: pval+3)!)
+        column.append(Position.init(rawValue: pval+3)!)
+        
+        return column
+    }
+    
+    static func columns() -> [[Position]] {
+        return [Position.midLeft.column(), Position.mid.column(), Position.midRight.column()]
+    }
+    
+    static func diagonals() -> [[Position]] {
+        return [[.topLeft, .mid, .bottomRight], [.topRight, .mid, .bottomLeft]]
+    }
 }
 
 enum FieldState {
@@ -26,10 +65,27 @@ struct GameModel {
     
     var gameboard: [Position:FieldState] = [:]
     
-    let a: Player
-    let b: Player
+    var a: Player {
+        get {
+            players[.a]!
+        }
+    }
+    
+    var b: Player {
+        get {
+            players[.b]!
+        }
+    }
+    
+    let players: [FieldState: Player]
     
     var outcome: Outcome?
+    
+    init(gameboard: [Position: FieldState] = [:], a: Player, b: Player) {
+        self.gameboard = gameboard
+        self.players = [.a: a, .b: b]
+        self.outcome = nil
+    }
 }
 
 struct Statistics: Identifiable {
@@ -64,14 +120,23 @@ struct Statistics: Identifiable {
 
 struct Context {
     
-    var iterations: Int = 1
+    var i: Int = 0
+    
+    var iterations: Int {
+        get {
+            max(0, i)
+        }
+        set {
+            i = newValue
+        }
+    }
     
     var iterationcontrol: Double {
         get {
-            Double(iterations)
+            pow(Double(iterations), (1/3))
         }
         set {
-            iterations = Int(newValue)
+            iterations = Int(newValue * newValue * newValue)
         }
     }
     
@@ -79,9 +144,55 @@ struct Context {
     
     var ai: AIPlayer
     
+    var opponent: Player {
+        get {
+            stats[opponentNr].opponent
+        }
+    }
+    
+    var aistats: Statistics {
+        get {
+            stats[stats.count-1]
+        }
+        set {
+            stats[stats.count-1] = newValue
+        }
+    }
+    
+    var opponentstats: Statistics {
+        get {
+            stats[opponentNr]
+        }
+        set {
+            stats[opponentNr] = newValue
+        }
+    }
+    
+    /// - Invariant: count may not change after initialization
     var stats: [Statistics]
     
-    var opponent: Int = 0
+    private var o: Int = 0
+    
+    var opponentNr: Int {
+        get {
+            o
+        }
+        set {
+            o = max(0, min(stats.count, newValue))
+        }
+    }
+    
+    init(ai: AIPlayer, opponents: [Player]) {
+        self.ai = ai
+        var allplayers = opponents
+        allplayers.append(ai)
+        var stats: [Statistics] = []
+        allplayers.forEach({ p in
+            stats.append(Statistics(opponent: p))
+        })
+        self.stats = stats
+        self.gm = GameModel(a: self.ai, b: allplayers[0])
+    }
 }
 
 

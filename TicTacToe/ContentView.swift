@@ -10,25 +10,50 @@ import SwiftUI
 
 struct ContentView: View {
     
-    @State var ctx = initContext
+    @State private var ctx = initContext
+    
+    var ctr: GameFlowController = GameFlowController()
+    
+    @State private var txt = ""
     
     var body: some View {
         
         
         VStack {
-            GameBoardView(gb: ctx.gm.gameboard).padding()
+            GameBoardView(gb: $ctx.gm.gameboard).padding()
             Divider().padding()
             
-            Picker("opponent", selection: $ctx.opponent) {
+            Picker("opponent", selection: $ctx.opponentNr) {
                 ForEach(0 ..< ctx.stats.count) { index in
-                    
-                    Text("hallo")
+                    Text(UIPlayer.playername(of: self.ctx.stats[index].opponent))
                         .tag(index)
                 }
 
-            }.pickerStyle(SegmentedPickerStyle()).padding(.leading).padding(.trailing)
+            }
+                .disabled(ctx.iterations > 0)
+                .pickerStyle(SegmentedPickerStyle())
+                .padding(.leading).padding(.trailing)
             
-            Slider(value: $ctx.iterationcontrol, in: 1...1000).padding()
+            HStack {
+                
+                Slider(value: $ctx.iterationcontrol, in: 0...10, onEditingChanged: { stillEditing in
+                    if !stillEditing {
+                        self.txt = "start"
+                        self.ctr.start(with: self.ctx, calling: { (context, message) in
+                            self.ctx = context
+                            if let msg = message {
+                               self.txt = msg
+                            }
+                        })
+                        self.txt = "started"
+                    }
+                }).padding(.trailing).padding(.leading)
+                
+                Text("\(ctx.iterations)").frame(width: 50, alignment: .trailing).padding(.trailing)
+                
+            }.padding().flipsForRightToLeftLayoutDirection(false)
+            
+            Divider().padding(.leading).padding(.trailing).padding(.bottom)
             
             VStack {
                 ForEach(ctx.stats, content: { stat in
@@ -36,7 +61,7 @@ struct ContentView: View {
                 })
             }
             
-            
+            Text(txt)
             
         }.frame(minWidth: 0, maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
@@ -45,25 +70,25 @@ struct ContentView: View {
 
 struct GameBoardView: View {
     
-    var gb: [Position:FieldState]
+    @Binding var gb: [Position:FieldState]
     
     var body: some View {
         
         HStack{
             VStack{
-                GameFieldView(state: gb[.topLeft], pos: .topLeft)
-                GameFieldView(state: gb[.midLeft], pos: .midLeft)
-                GameFieldView(state: gb[.bottomLeft], pos: .bottomLeft)
+                GameFieldView(state: $gb[.topLeft], pos: .topLeft)
+                GameFieldView(state: $gb[.midLeft], pos: .midLeft)
+                GameFieldView(state: $gb[.bottomLeft], pos: .bottomLeft)
                 }
             VStack{
-                GameFieldView(state: gb[.top], pos: .top)
-                GameFieldView(state: gb[.mid], pos: .mid)
-                GameFieldView(state: gb[.bottom], pos: .bottom)
+                GameFieldView(state: $gb[.top], pos: .top)
+                GameFieldView(state: $gb[.mid], pos: .mid)
+                GameFieldView(state: $gb[.bottom], pos: .bottom)
             }
             VStack{
-                GameFieldView(state: gb[.topRight], pos: .topRight)
-                GameFieldView(state: gb[.midRight], pos: .midRight)
-                GameFieldView(state: gb[.bottomRight], pos: .bottomRight)
+                GameFieldView(state: $gb[.topRight], pos: .topRight)
+                GameFieldView(state: $gb[.midRight], pos: .midRight)
+                GameFieldView(state: $gb[.bottomRight], pos: .bottomRight)
             }
         }.flipsForRightToLeftLayoutDirection(false)
         
@@ -71,26 +96,26 @@ struct GameBoardView: View {
 }
 
 struct GameFieldView: View {
-    @State var state: FieldState? = nil
+    @Binding var state: FieldState?
     var pos: Position
     var player: UIPlayer = h
     
     var body: some View {
         ZStack{
             if state == nil {
-                Image(systemName: "xmark.icloud").resizable().aspectRatio(1, contentMode: .fit)//Spacer()//EmptyView().aspectRatio(1, contentMode: .fit)
+                Image(systemName: "xmark.icloud").resizable().aspectRatio(1, contentMode: .fit)
                 
             } else {
                 Image(systemName: state! == FieldState.a ? "clock" : "camera").resizable().aspectRatio(1, contentMode: .fit)
             }
-        }.disabled(state != nil).onTapGesture {
+        }/*.disabled(state != nil).onTapGesture {
             self.state = self.state == .a ? .b : .a
-        }
+        }*/
     }
 }
 
 struct StatsView: View {
-    @State var stats: Statistics
+    var stats: Statistics
     
     var body: some View {
         HStack{
@@ -113,7 +138,7 @@ let rp = RandomPlayer()
 let hp = UIPlayer()
 let aip = AIPlayer()
 let algp = AlgorithmicPlayer()
-let initContext = Context(
+/*let initContext = Context(
     gm: GameModel(a: hp, b: aip),
     ai: aip,
     stats: [
@@ -121,14 +146,17 @@ let initContext = Context(
         Statistics(opponent: hp),
         Statistics(opponent: algp),
         Statistics(opponent: aip)
-])
+    ],
+    opponent: 1
+)*/
+let initContext = Context(ai: aip, opponents: [rp, hp, algp])
 
 #if DEBUG
 let r = RandomPlayer()
 let h = UIPlayer()
 let ai = AIPlayer()
 let alg = AlgorithmicPlayer()
-let testContext1 = Context(
+/*let testContext1 = Context(
     gm: GameModel(a: r, b: ai),
     ai: ai,
     stats: [
@@ -136,13 +164,13 @@ let testContext1 = Context(
         Statistics(opponent: h),
         Statistics(opponent: alg, draws: 100),
         Statistics(opponent: ai, draws: 1000)
-])
+])*/
 
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-            ContentView(ctx: testContext1)
+            //ContentView(ctx: testContext1)
             ContentView()
         }
     }
