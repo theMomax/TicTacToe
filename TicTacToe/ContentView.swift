@@ -10,11 +10,9 @@ import SwiftUI
 
 struct ContentView: View {
     
-    @State private var ctx = initContext
+    @ObservedObject var ctx: Context = initContext
     
-    var ctr: GameFlowController = GameFlowController()
-    
-    @State private var txt = ""
+    var ctr: GameFlowController = gameFlowController
     
     var body: some View {
         
@@ -38,14 +36,12 @@ struct ContentView: View {
                 
                 Slider(value: $ctx.iterationcontrol, in: 0...10, onEditingChanged: { stillEditing in
                     if !stillEditing {
-                        self.txt = "start"
-                        self.ctr.start(with: self.ctx, calling: { (context, message) in
-                            self.ctx = context
-                            if let msg = message {
-                               self.txt = msg
-                            }
-                        })
-                        self.txt = "started"
+                        self.ctr.start()
+                        // self.txt = "start"
+                        // self.ctr.start(with: self.ctx, calling: { (context) in
+                        //     self.ctx = context
+                        // })
+                        // self.txt = "started"
                     }
                 }).padding(.trailing).padding(.leading)
                 
@@ -61,7 +57,7 @@ struct ContentView: View {
                 })
             }
             
-            Text(txt)
+            // Text(txt)
             
         }.frame(minWidth: 0, maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
@@ -150,6 +146,7 @@ let algp = AlgorithmicPlayer()
     opponent: 1
 )*/
 let initContext = Context(ai: aip, opponents: [rp, hp, algp])
+let gameFlowController = GameFlowController(ctx: initContext)
 
 #if DEBUG
 let r = RandomPlayer()
@@ -171,7 +168,7 @@ struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
             //ContentView(ctx: testContext1)
-            ContentView()
+            ContentView(ctx: initContext, ctr: gameFlowController)
         }
     }
 }

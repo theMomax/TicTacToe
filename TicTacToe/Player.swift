@@ -68,8 +68,14 @@ class UIPlayer: Player {
     }
 }
 
-class AIPlayer: RandomPlayer { // the ai is just doing random stuff for now
-    
+class AIPlayer: Player {
+    func react(to gameboard: [Position : FieldState]) -> Position? {
+        var options: [Position] = Position.allCases
+        options.removeAll(where: {(p) in
+            gameboard[p] != nil
+            })
+        return options.randomElement()
+    }
 }
 
 class AlgorithmicPlayer: RandomPlayer { // so does the algorithm

@@ -37,7 +37,7 @@ enum Position: Int, CaseIterable {
         
         column.append(Position.init(rawValue: pval)!)
         column.append(Position.init(rawValue: pval+3)!)
-        column.append(Position.init(rawValue: pval+3)!)
+        column.append(Position.init(rawValue: pval+6)!)
         
         return column
     }
@@ -69,15 +69,21 @@ struct GameModel {
         get {
             players[.a]!
         }
+        set {
+            players[.a] = newValue
+        }
     }
     
     var b: Player {
         get {
             players[.b]!
         }
+        set {
+            players[.b] = newValue
+        }
     }
     
-    let players: [FieldState: Player]
+    var players: [FieldState: Player]
     
     var outcome: Outcome?
     
@@ -118,9 +124,9 @@ struct Statistics: Identifiable {
     
 }
 
-struct Context {
+class Context: ObservableObject {
     
-    var i: Int = 0
+    @Published private var i: Int = 0
     
     var iterations: Int {
         get {
@@ -133,16 +139,16 @@ struct Context {
     
     var iterationcontrol: Double {
         get {
-            pow(Double(iterations), (1/3))
+            pow(Double(iterations), (1.0/3.0))
         }
         set {
             iterations = Int(newValue * newValue * newValue)
         }
     }
     
-    var gm: GameModel
+    @Published var gm: GameModel
     
-    var ai: AIPlayer
+    @Published var ai: AIPlayer
     
     var opponent: Player {
         get {
@@ -169,9 +175,9 @@ struct Context {
     }
     
     /// - Invariant: count may not change after initialization
-    var stats: [Statistics]
+    @Published var stats: [Statistics]
     
-    private var o: Int = 0
+    @Published private var o: Int = 0
     
     var opponentNr: Int {
         get {
@@ -191,7 +197,7 @@ struct Context {
             stats.append(Statistics(opponent: p))
         })
         self.stats = stats
-        self.gm = GameModel(a: self.ai, b: allplayers[0])
+        self.gm = GameModel(gameboard: [:], a: ai, b: allplayers[0])
     }
 }
 

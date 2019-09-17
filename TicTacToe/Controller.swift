@@ -57,7 +57,7 @@ extension GameModel {
 
 extension FieldState {
     
-    func toggle() -> FieldState {
+    func toggled() -> FieldState {
         return self == .a ? .b : .a
     }
     
@@ -71,86 +71,88 @@ class GameFlowController {
     
     let queue = DispatchQueue(label: "io.github.themomax.gameflow")
     
-    var ctx: Context? = nil
+    var ctx: Context
     
-    func start(with context: Context, calling update: @escaping (Context, String?) -> ()) {
-        if ctx == nil {
-            ctx = context
-            process(calling: update)
-        } else {
-            ctx?.iterations = context.iterations
+    var running: Bool = false
+    
+    func start() {
+        if !running {
+            process()
         }
     }
     
+    init(ctx: Context) {
+        self.ctx = ctx
+    }
     
-    func process(calling update: @escaping (Context, String) -> ()) {
+    
+    func process() {
+        running = true
         queue.async {
             
-            while self.ctx!.iterations > 0 {
+            while self.ctx.iterations > 0 {
                 sleep(2)
                 // reset game
-                self.ctx!.gm = GameModel(gameboard: [:], a: self.ctx!.ai, b: self.ctx!.opponent)
-                update(self.ctx!, "reset game for \(UIPlayer.playername(of: self.ctx!.opponent)) <-> \(UIPlayer.playername(of: self.ctx!.ai))")
+                DispatchQueue.main.sync {
+                    self.ctx.gm.gameboard = [:]
+                    self.ctx.gm.a = self.ctx.ai
+                    self.ctx.gm.b = self.ctx.opponent
+                }
                 
                 var activePlayer = FieldState.random()
                 
                 for i in 0..<9 {
                     sleep(1)
-                    let pos = self.ctx!.gm.players[activePlayer]!.react(to: self.ctx!.gm.gameboard)
+                    let pos = self.ctx.gm.players[activePlayer]!.react(to: self.ctx.gm.gameboard)
+                    print("\(activePlayer): \(String(describing: pos))")
                     
                     // check for illegal reaction
-                    if pos == nil || self.ctx!.gm.gameboard[pos!] != nil {
-                        self.ctx!.gm.players[activePlayer]!.accept(.defeat)
-                        self.ctx!.gm.players[activePlayer.toggle()]!.accept(.victory)
-                        update(self.ctx!, "\(activePlayer) did a illegal move, with pos \(pos!)")
+                    if pos == nil || self.ctx.gm.gameboard[pos!] != nil {
+                        self.ctx.gm.players[activePlayer]!.accept(.defeat)
+                        self.ctx.gm.players[activePlayer.toggled()]!.accept(.victory)
                         break
                     }
                     
-                    self.ctx!.gm.gameboard[pos!] = activePlayer
-                    update(self.ctx!, "\(activePlayer) moved to \(pos!)")
+                    DispatchQueue.main.sync {
+                        self.ctx.gm.gameboard[pos!] = activePlayer
+                    }
                     
-                    if let e = self.ctx!.gm.evaluate() {
-                        self.ctx!.gm.players[e]!.accept(.victory)
-                        self.ctx!.gm.players[e.toggle()]!.accept(.defeat)
+                    if let e = self.ctx.gm.evaluate() {
+                        print("\(e) has won")
+                        self.ctx.gm.players[e]!.accept(.victory)
+                        self.ctx.gm.players[e.toggled()]!.accept(.defeat)
                         if e == .a {
-                            self.ctx!.aistats.victories += 1
-                            self.ctx!.opponentstats.defeats += 1
+                            DispatchQueue.main.sync {
+                                self.ctx.aistats.victories += 1
+                                self.ctx.opponentstats.defeats += 1
+                            }
                         } else {
-                            self.ctx!.aistats.defeats += 1
-                            self.ctx!.opponentstats.victories += 1
+                            DispatchQueue.main.sync {
+                                self.ctx.aistats.defeats += 1
+                                self.ctx.opponentstats.victories += 1
+                            }
                         }
                         break
                     }
                     
                     if i == 8 {
-                        self.ctx!.gm.a.accept(.draw)
-                        self.ctx!.gm.b.accept(.draw)
-                        self.ctx!.aistats.draws += 1
-                        self.ctx!.opponentstats.draws += 1
+                        print("draw")
+                        self.ctx.gm.a.accept(.draw)
+                        self.ctx.gm.b.accept(.draw)
+                        DispatchQueue.main.sync {
+                            self.ctx.aistats.draws += 1
+                            self.ctx.opponentstats.draws += 1
+                        }
                     } else {
-                        activePlayer = activePlayer.toggle()
+                        activePlayer = activePlayer.toggled()
                     }
                 }
-                self.ctx!.iterations -= 1
-                update(self.ctx!, "completed game: \(self.ctx!.iterations) left")
-                
-                if self.ctx!.iterations == 0 {
-                    // update(self.ctx!, "completed all iterations")
+                DispatchQueue.main.sync {
+                    self.ctx.iterations -= 1
                 }
             }
-            update(self.ctx!, "Iterations: \(self.ctx!.iterations); AIPlayerStats: \(self.ctx!.aistats)")
             
-            self.ctx = nil
-            
+            self.running = false
         }
-        
-        /*queue.async {
-            while self.ctx!.iterations > 0 {
-                sleep(1)
-                self.ctx!.iterations -= 1
-                callback(self.ctx!)
-            }
-            self.ctx = nil
-        }*/
     }
 }
