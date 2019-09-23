@@ -11,22 +11,26 @@ import Foundation
 
 extension GameModel {
     
-    /// Returns the winner
     func evaluate() -> FieldState? {
+        return GameModel.evaluate(gameboard)
+    }
+    
+    /// Returns the winner
+    static func evaluate(_ gameboard: [Position:FieldState]) -> FieldState? {
         for c in Position.columns() {
-            if let s = evaluate(on: c) {
+            if let s = GameModel.evaluate(gameboard, at: c) {
                 return s
             }
         }
         
         for r in Position.rows() {
-            if let s = evaluate(on: r) {
+            if let s = GameModel.evaluate(gameboard, at: r) {
                 return s
             }
         }
         
         for d in Position.diagonals() {
-            if let s = evaluate(on: d) {
+            if let s = GameModel.evaluate(gameboard, at: d) {
                 return s
             }
         }
@@ -34,7 +38,7 @@ extension GameModel {
         return nil
     }
     
-    private func evaluate(on set: [Position]) -> FieldState? {
+    static func evaluate(_ gameboard: [Position:FieldState], at set: [Position]) -> FieldState? {
         if set.count == 0 {
             return nil
         }
@@ -118,6 +122,7 @@ class GameFlowController {
                     
                     if let e = self.ctx.gm.evaluate() {
                         print("\(e) has won")
+                        
                         self.ctx.gm.players[e]!.accept(.victory)
                         self.ctx.gm.players[e.toggled()]!.accept(.defeat)
                         if e == .a {
