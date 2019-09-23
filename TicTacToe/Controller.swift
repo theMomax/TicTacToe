@@ -91,7 +91,6 @@ class GameFlowController {
         queue.async {
             
             while self.ctx.iterations > 0 {
-                sleep(2)
                 // reset game
                 DispatchQueue.main.sync {
                     self.ctx.gm.gameboard = [:]
@@ -102,7 +101,7 @@ class GameFlowController {
                 var activePlayer = FieldState.random()
                 
                 for i in 0..<9 {
-                    sleep(1)
+                    usleep(1000000 / useconds_t(max(Double(self.ctx.iterations), 1)))
                     let pos = self.ctx.gm.players[activePlayer]!.react(to: self.ctx.gm.gameboard)
                     print("\(activePlayer): \(String(describing: pos))")
                     
@@ -147,8 +146,13 @@ class GameFlowController {
                         activePlayer = activePlayer.toggled()
                     }
                 }
+                
                 DispatchQueue.main.sync {
                     self.ctx.iterations -= 1
+                }
+                
+                if self.ctx.iterations > 0 {
+                    usleep(2000000 / useconds_t(max(Double(self.ctx.iterations), 1)))
                 }
             }
             

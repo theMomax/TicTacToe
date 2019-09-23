@@ -156,14 +156,7 @@ class Context: ObservableObject {
         }
     }
     
-    var aistats: Statistics {
-        get {
-            stats[stats.count-1]
-        }
-        set {
-            stats[stats.count-1] = newValue
-        }
-    }
+    var aistats: Statistics
     
     var opponentstats: Statistics {
         get {
@@ -189,15 +182,19 @@ class Context: ObservableObject {
     }
     
     init(ai: AIPlayer, opponents: [Player]) {
+        guard opponents.count > 0 else {
+            print("FATAL: add opponents")
+            exit(1)
+        }
+        
         self.ai = ai
-        var allplayers = opponents
-        allplayers.append(ai)
+        self.aistats = Statistics(opponent: ai)
         var stats: [Statistics] = []
-        allplayers.forEach({ p in
+        opponents.forEach({ p in
             stats.append(Statistics(opponent: p))
         })
         self.stats = stats
-        self.gm = GameModel(gameboard: [:], a: ai, b: allplayers[0])
+        self.gm = GameModel(gameboard: [:], a: ai, b: opponents[0])
     }
 }
 

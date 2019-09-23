@@ -8,6 +8,27 @@
 
 import SwiftUI
 
+
+
+extension Player {
+    
+    func icon() -> some View {
+        switch self {
+        case _ as UIPlayer:
+            return Image(systemName: "person.circle")
+        case _ as AlgorithmicPlayer:
+            return Image(systemName: "divide.square")
+        case _ as AIPlayer:
+            return Image(systemName: "circle.grid.hex")
+        case _ as RandomPlayer:
+            return Image(systemName: "questionmark.diamond")
+        default:
+            return Image(systemName: "questionmark")
+        }
+    }
+    
+}
+
 struct ContentView: View {
     
     @ObservedObject var ctx: Context = initContext
@@ -23,12 +44,12 @@ struct ContentView: View {
             
             Picker("opponent", selection: $ctx.opponentNr) {
                 ForEach(0 ..< ctx.stats.count) { index in
-                    Text(UIPlayer.playername(of: self.ctx.stats[index].opponent))
+                    Text(self.ctx.stats[index].opponent.name())
                         .tag(index)
                 }
 
             }
-                .disabled(ctx.iterations > 0)
+            .disabled(ctr.running)
                 .pickerStyle(SegmentedPickerStyle())
                 .padding(.leading).padding(.trailing)
             
@@ -37,11 +58,6 @@ struct ContentView: View {
                 Slider(value: $ctx.iterationcontrol, in: 0...10, onEditingChanged: { stillEditing in
                     if !stillEditing {
                         self.ctr.start()
-                        // self.txt = "start"
-                        // self.ctr.start(with: self.ctx, calling: { (context) in
-                        //     self.ctx = context
-                        // })
-                        // self.txt = "started"
                     }
                 }).padding(.trailing).padding(.leading)
                 
@@ -51,13 +67,15 @@ struct ContentView: View {
             
             Divider().padding(.leading).padding(.trailing).padding(.bottom)
             
-            VStack {
-                ForEach(ctx.stats, content: { stat in
-                    StatsView(stats: stat)
-                })
+            ScrollView {
+                VStack {
+                    ForEach(ctx.stats, content: { stat in
+                        StatsView(stats: stat)
+                    })
+                }.padding(.top)
+                Divider().padding(.leading).padding(.trailing).padding(.bottom)
+                StatsView(stats: ctx.aistats)
             }
-            
-            // Text(txt)
             
         }.frame(minWidth: 0, maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
@@ -70,43 +88,77 @@ struct GameBoardView: View {
     
     var body: some View {
         
-        HStack{
+        ZStack {
+            
             VStack{
-                GameFieldView(state: $gb[.topLeft], pos: .topLeft)
-                GameFieldView(state: $gb[.midLeft], pos: .midLeft)
-                GameFieldView(state: $gb[.bottomLeft], pos: .bottomLeft)
-                }
-            VStack{
-                GameFieldView(state: $gb[.top], pos: .top)
-                GameFieldView(state: $gb[.mid], pos: .mid)
-                GameFieldView(state: $gb[.bottom], pos: .bottom)
+                Spacer()
+                Divider()
+                Spacer()
+                Divider()
+                Spacer()
             }
-            VStack{
-                GameFieldView(state: $gb[.topRight], pos: .topRight)
-                GameFieldView(state: $gb[.midRight], pos: .midRight)
-                GameFieldView(state: $gb[.bottomRight], pos: .bottomRight)
+            
+            HStack{
+                Spacer()
+                Divider()
+                Spacer()
+                Divider()
+                Spacer()
             }
-        }.flipsForRightToLeftLayoutDirection(false)
+            
+            GameBoardLayerView(gb: $gb)
+        }
         
     }
 }
 
-struct GameFieldView: View {
-    @Binding var state: FieldState?
-    var pos: Position
-    var player: UIPlayer = h
+struct GameBoardLayerView: View {
+    
+    @Binding var gb: [Position:FieldState]
     
     var body: some View {
-        ZStack{
+        HStack{
+            VStack{
+                GameFieldView(state: gb[.topLeft], pos: .topLeft)
+                GameFieldView(state: gb[.midLeft], pos: .midLeft)
+                GameFieldView(state: gb[.bottomLeft], pos: .bottomLeft)
+                }
+                
+            VStack{
+                GameFieldView(state: gb[.top], pos: .top)
+                GameFieldView(state: gb[.mid], pos: .mid)
+                GameFieldView(state: gb[.bottom], pos: .bottom)
+            }
+            VStack{
+                GameFieldView(state: gb[.topRight], pos: .topRight)
+                GameFieldView(state: gb[.midRight], pos: .midRight)
+                GameFieldView(state: gb[.bottomRight], pos: .bottomRight)
+            }
+        }.flipsForRightToLeftLayoutDirection(false).frame(alignment: .center).aspectRatio(1, contentMode: .fill)
+    }
+    
+}
+
+struct GameFieldView: View {
+    var state: FieldState?
+    var pos: Position
+    @ObservedObject var player: UIPlayer = hp
+    
+    var body: some View {
+        Group{
             if state == nil {
-                Image(systemName: "xmark.icloud").resizable().aspectRatio(1, contentMode: .fit)
+                if player.enabled {
+                    Image(systemName:"questionmark").font(.largeTitle).frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
+                } else {
+                    Image("unset").resizable().aspectRatio(1, contentMode: .fit)
+                }
                 
             } else {
-                Image(systemName: state! == FieldState.a ? "clock" : "camera").resizable().aspectRatio(1, contentMode: .fit)
+                Image(state! == FieldState.a ? "circle" : "cross").resizable().aspectRatio(1, contentMode: .fit)
             }
-        }/*.disabled(state != nil).onTapGesture {
-            self.state = self.state == .a ? .b : .a
-        }*/
+        }.disabled(state != nil && !player.enabled).onTapGesture {
+            self.player.receive(choice: self.pos)
+        }
     }
 }
 
@@ -115,7 +167,7 @@ struct StatsView: View {
     
     var body: some View {
         HStack{
-            Image(systemName: "faceid").font(Font.system(.largeTitle)).padding(.trailing)
+            PlayerIconView(player: stats.opponent)
             
             if stats.matches > 0 {
                 Text("\(String(format: "%.2f", stats.winrate*100))%").foregroundColor(.green)
@@ -130,30 +182,45 @@ struct StatsView: View {
     }
 }
 
+struct PlayerIconView: View {
+    var player: Player
+    
+    var body: some View {
+        
+        var icon: some View {
+            switch player {
+            case _ as UIPlayer:
+                return Image(systemName: "person.circle").resizable().frame(width: 40, height: 40, alignment: .center).offset(x: 0)
+            case _ as AIPlayer:
+                return Image("ai").resizable().frame(width: 40, height: 40, alignment: .center).offset(x: 0)
+            case _ as AlgorithmicPlayer:
+                return Image(systemName: "divide.square").resizable().frame(width: 40, height: 40, alignment: .center).offset(x: 1)
+            case _ as RandomPlayer:
+                return Image("random").resizable().frame(width: 40, height: 40, alignment: .center).offset(x: 0)
+            default:
+                return Image(systemName: "questionmark").resizable().frame(width: 40, height: 40, alignment: .center).offset(x: 0)
+            }
+        }
+        
+        return icon.padding(.trailing).font(Font.system(.largeTitle))
+    }
+}
+
 let rp = RandomPlayer()
 let hp = UIPlayer()
 let aip = AIPlayer()
+let aiop = AIPlayer()
 let algp = AlgorithmicPlayer()
-/*let initContext = Context(
-    gm: GameModel(a: hp, b: aip),
-    ai: aip,
-    stats: [
-        Statistics(opponent: rp),
-        Statistics(opponent: hp),
-        Statistics(opponent: algp),
-        Statistics(opponent: aip)
-    ],
-    opponent: 1
-)*/
-let initContext = Context(ai: aip, opponents: [rp, hp, algp])
+let initContext = Context(ai: aip, opponents: [rp, hp, algp, aiop])
 let gameFlowController = GameFlowController(ctx: initContext)
 
 #if DEBUG
+/*
 let r = RandomPlayer()
 let h = UIPlayer()
 let ai = AIPlayer()
 let alg = AlgorithmicPlayer()
-/*let testContext1 = Context(
+let testContext1 = Context(
     gm: GameModel(a: r, b: ai),
     ai: ai,
     stats: [
