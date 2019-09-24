@@ -185,13 +185,15 @@ class AlgorithmicPlayer: Player {
                 return nil
             }
             
-            var best: (key: Position, value: Node)? = nil
+            var best: [(key: Position, value: Node)] = []
             for c in children {
-                if best == nil || c.value.outcome > best!.value.outcome {
-                    best = c
+                if best.count == 0 || c.value.outcome > best[0].value.outcome {
+                    best = [c]
+                } else if c.value.outcome == best[0].value.outcome {
+                    best.append(c)
                 }
             }
-            return best!.key
+            return best.randomElement()?.key
         }
         
     }
