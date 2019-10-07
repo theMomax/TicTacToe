@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol Player {
+public protocol Player {
     
     /// Provides the `Player`'s next pick given the current situation on the `gameboard`.
     ///
@@ -19,18 +19,14 @@ protocol Player {
     func accept(_ outcome: Outcome)
 }
 
-extension Player {
+public extension Player {
     func accept(_ outcome: Outcome) {}
 }
 
-extension Player {
+public extension Player {
     
     func name() -> String {
         switch self {
-        case _ as UIPlayer:
-            return "You"
-        case _ as AIPlayer:
-            return "Robot"
         case _ as AlgorithmicPlayer:
             return "Math"
         case _ as RandomPlayer:
@@ -43,9 +39,11 @@ extension Player {
 }
 
 
-class RandomPlayer: Player {
+public class RandomPlayer: Player {
     
-    func react(to gameboard: [Position : FieldState]) -> Position? {
+    public init(){ }
+    
+    public func react(to gameboard: [Position : FieldState]) -> Position? {
         var options: [Position] = Position.allCases
         options.removeAll(where: {(p) in
             gameboard[p] != nil
@@ -55,54 +53,7 @@ class RandomPlayer: Player {
     
 }
 
-class UIPlayer: Player, ObservableObject {
-    
-    @Published var enabled: Bool = false
-    
-    private var choice: Position? = nil
-    
-    func receive(choice: Position) {
-        self.choice = choice
-    }
-    
-    func react(to gameboard: [Position : FieldState]) -> Position? {
-        DispatchQueue.main.sync {
-            enabled  = true
-        }
-        choice = nil
-        
-        // TODO: manage this using signal instead of await-loop
-        
-        while self.choice == nil {
-            usleep(50000)
-        }
-        DispatchQueue.main.sync {
-            enabled = false
-        }
-        return choice
-    }
-    
-    
-    func accept(_ outcome: Outcome) {
-        
-    }
-}
-
-class AIPlayer: Player {
-    
-    let mlwrapper = MLWrapper()
-    
-    
-    func react(to gameboard: [Position : FieldState]) -> Position? {
-        return mlwrapper.predict(on: gameboard)
-    }
-    
-    func accept(_ outcome: Outcome) {
-        mlwrapper.reflect(on: outcome)
-    }
-}
-
-extension Position {
+public extension Position {
     static func others(_ positions: [Position]) -> [Position] {
         return Position.allCases.filter { p in
             return !positions.contains(p)
@@ -111,10 +62,12 @@ extension Position {
 }
 
 extension Position: Comparable {
-    static func < (lhs: Position, rhs: Position) -> Bool {
+    public static func < (lhs: Position, rhs: Position) -> Bool {
         lhs.rawValue < rhs.rawValue
     }
 }
+
+
 
 extension Sequence where Self.Element : Comparable {
  
@@ -140,7 +93,7 @@ extension Sequence where Self.Element : Comparable {
     
 }
 
-class AlgorithmicPlayer: Player {
+public class AlgorithmicPlayer: Player {
     
     private class Node {
         
@@ -214,7 +167,7 @@ class AlgorithmicPlayer: Player {
     
     
     
-    init() {
+    public init() {
         connectLinkNodesAndCalcOutcomes()
     }
     
@@ -269,7 +222,7 @@ class AlgorithmicPlayer: Player {
     
     
     
-    func react(to gb: [Position : FieldState]) -> Position? {
+    public func react(to gb: [Position : FieldState]) -> Position? {
         // Toggle gameboard, since this algorithm was originally written to play as
         // player .b, but now the interface was normalized, so that every player
         // plays as .a.
@@ -292,7 +245,7 @@ class AlgorithmicPlayer: Player {
         
         let astarted = apicks.count > bpicks.count
         
-        return trace(first: astarted ? apicks : bpicks, second: astarted ? bpicks : apicks, tree: astarted ? decisionTreeSecond : decisionTreeFirst)!.best()
+        return trace(first: astarted ? apicks : bpicks, second: astarted ? bpicks : apicks, tree: astarted ? decisionTreeSecond : decisionTreeFirst)?.best()
     }
     
     private func trace(path: [Position], tree: Node) -> Node? {

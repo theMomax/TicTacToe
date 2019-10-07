@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A519248B2348954600E6B75A /* UpdatableNNClassifier.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = A519248A2348954600E6B75A /* UpdatableNNClassifier.mlmodel */; };
+		A5444617233A504D0053F69A /* MLBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5444616233A504D0053F69A /* MLBase.swift */; };
+		A5863F1A234A5B45000E1945 /* StaticClassifier 1.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = A5863F19234A5B45000E1945 /* StaticClassifier 1.mlmodel */; };
 		A59D17B2232A2D9700A29184 /* Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = A59D17B1232A2D9700A29184 /* Controller.swift */; };
 		A5B56D722323962300745758 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5B56D712323962300745758 /* AppDelegate.swift */; };
 		A5B56D742323962300745758 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5B56D732323962300745758 /* SceneDelegate.swift */; };
@@ -20,6 +23,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		A519248A2348954600E6B75A /* UpdatableNNClassifier.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; name = UpdatableNNClassifier.mlmodel; path = MLModel/UpdatableNNClassifier.mlmodel; sourceTree = "<group>"; };
+		A5444616233A504D0053F69A /* MLBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MLBase.swift; sourceTree = "<group>"; };
+		A5863F19234A5B45000E1945 /* StaticClassifier 1.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; name = "StaticClassifier 1.mlmodel"; path = "MLModel/static coreml approach/StaticClassifier.mlproj/Models/StaticClassifier 1.mlmodel"; sourceTree = "<group>"; };
 		A59D17B1232A2D9700A29184 /* Controller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Controller.swift; sourceTree = "<group>"; };
 		A5B56D6E2323962300745758 /* TicTacToe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TicTacToe.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A5B56D712323962300745758 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -50,6 +56,8 @@
 			children = (
 				A5B56D702323962300745758 /* TicTacToe */,
 				A5B56D6F2323962300745758 /* Products */,
+				A519248A2348954600E6B75A /* UpdatableNNClassifier.mlmodel */,
+				A5863F19234A5B45000E1945 /* StaticClassifier 1.mlmodel */,
 			);
 			sourceTree = "<group>";
 		};
@@ -75,6 +83,7 @@
 				A5B56D752323962300745758 /* TicTacToe.xcdatamodeld */,
 				A5B56D7C2323962500745758 /* Preview Content */,
 				A59D17B1232A2D9700A29184 /* Controller.swift */,
+				A5444616233A504D0053F69A /* MLBase.swift */,
 			);
 			path = TicTacToe;
 			sourceTree = "<group>";
@@ -158,13 +167,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A5863F1A234A5B45000E1945 /* StaticClassifier 1.mlmodel in Sources */,
 				A5B56D772323962300745758 /* TicTacToe.xcdatamodeld in Sources */,
 				A5B56D722323962300745758 /* AppDelegate.swift in Sources */,
 				A5B56D792323962300745758 /* ContentView.swift in Sources */,
+				A5444617233A504D0053F69A /* MLBase.swift in Sources */,
 				A5B56DA72323965000745758 /* Model.swift in Sources */,
 				A5B56DA62323965000745758 /* Player.swift in Sources */,
 				A5B56D742323962300745758 /* SceneDelegate.swift in Sources */,
 				A59D17B2232A2D9700A29184 /* Controller.swift in Sources */,
+				A519248B2348954600E6B75A /* UpdatableNNClassifier.mlmodel in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

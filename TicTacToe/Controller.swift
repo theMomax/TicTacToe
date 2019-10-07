@@ -73,7 +73,7 @@ extension FieldState {
 
 class GameFlowController {
     
-    let queue = DispatchQueue(label: "io.github.themomax.gameflow")
+    let queue = DispatchQueue(label: "io.github.themomax.gameflow", qos: .userInteractive)
     
     var ctx: Context
     
@@ -89,6 +89,17 @@ class GameFlowController {
         self.ctx = ctx
     }
     
+    private func normalized(_ gb: [Position: FieldState], if isNotNormalized: Bool = true) -> [Position: FieldState] {
+        if isNotNormalized {
+            var ngb = gb
+            for (p, s) in ngb {
+                ngb[p] = s.toggled()
+            }
+            return ngb
+        } else {
+            return gb
+        }
+    }
     
     func process() {
         running = true
@@ -106,13 +117,24 @@ class GameFlowController {
                 
                 for i in 0..<9 {
                     usleep(1000000 / useconds_t(max(Double(self.ctx.iterations), 1)))
-                    let pos = self.ctx.gm.players[activePlayer]!.react(to: self.ctx.gm.gameboard)
+                    let pos = self.ctx.gm.players[activePlayer]!.react(to: self.normalized(self.ctx.gm.gameboard, if: activePlayer == .b))
                     print("\(activePlayer): \(String(describing: pos))")
                     
                     // check for illegal reaction
                     if pos == nil || self.ctx.gm.gameboard[pos!] != nil {
                         self.ctx.gm.players[activePlayer]!.accept(.defeat)
                         self.ctx.gm.players[activePlayer.toggled()]!.accept(.victory)
+                        if activePlayer == .b {
+                            DispatchQueue.main.sync {
+                                self.ctx.aistats.victories += 1
+                                self.ctx.opponentstats.defeats += 1
+                            }
+                        } else {
+                            DispatchQueue.main.sync {
+                                self.ctx.aistats.defeats += 1
+                                self.ctx.opponentstats.victories += 1
+                            }
+                        }
                         break
                     }
                     

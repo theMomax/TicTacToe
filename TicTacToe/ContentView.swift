@@ -42,40 +42,42 @@ struct ContentView: View {
             GameBoardView(gb: $ctx.gm.gameboard).padding()
             Divider().padding()
             
-            Picker("opponent", selection: $ctx.opponentNr) {
-                ForEach(0 ..< ctx.stats.count) { index in
-                    Text(self.ctx.stats[index].opponent.name())
-                        .tag(index)
-                }
-
-            }
-            .disabled(ctr.running)
-                .pickerStyle(SegmentedPickerStyle())
-                .padding(.leading).padding(.trailing)
-            
-            HStack {
-                
-                Slider(value: $ctx.iterationcontrol, in: 0...10, onEditingChanged: { stillEditing in
-                    if !stillEditing {
-                        self.ctr.start()
-                    }
-                }).padding(.trailing).padding(.leading)
-                
-                Text("\(ctx.iterations)").frame(width: 50, alignment: .trailing).padding(.trailing)
-                
-            }.padding().flipsForRightToLeftLayoutDirection(false)
-            
-            Divider().padding(.leading).padding(.trailing).padding(.bottom)
-            
             ScrollView {
+                Picker("opponent", selection: $ctx.opponentNr) {
+                    ForEach(0 ..< ctx.stats.count) { index in
+                        Text(self.ctx.stats[index].opponent.name())
+                            .tag(index)
+                    }
+
+                }
+                .disabled(ctr.running)
+                    .pickerStyle(SegmentedPickerStyle())
+                    .padding(.leading).padding(.trailing)
+                
+                HStack {
+                    
+                    Slider(value: $ctx.iterationcontrol, in: 0...10, onEditingChanged: { stillEditing in
+                        if !stillEditing {
+                            self.ctr.start()
+                        }
+                    }).padding(.trailing).padding(.leading)
+                    
+                    Text("\(ctx.iterations)").frame(width: 50, alignment: .trailing).padding(.trailing)
+                    
+                }.padding().flipsForRightToLeftLayoutDirection(false)
+                
+                Divider().padding(.leading).padding(.trailing).padding(.bottom)
+                
+                
+                StatsView(stats: ctx.aistats)
+                Divider().padding(.leading).padding(.trailing)
                 VStack {
                     ForEach(ctx.stats, content: { stat in
                         StatsView(stats: stat)
                     })
                 }.padding(.top)
-                Divider().padding(.leading).padding(.trailing).padding(.bottom)
-                StatsView(stats: ctx.aistats)
             }
+            
             
         }.frame(minWidth: 0, maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
@@ -156,7 +158,7 @@ struct GameFieldView: View {
             } else {
                 Image(state! == FieldState.a ? "circle" : "cross").resizable().aspectRatio(1, contentMode: .fit)
             }
-        }.disabled(state != nil && !player.enabled).onTapGesture {
+        }.disabled(state != nil || !player.enabled).onTapGesture {
             self.player.receive(choice: self.pos)
         }
     }

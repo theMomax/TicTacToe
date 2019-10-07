@@ -1,0 +1,20 @@
+name: KerasTensorFlowCoreML
+channels:
+- !!python/unicode
+  'defaults'
+dependencies:
+- python
+- pip
+- numpy
+- jupyter
+- matplotlib
+- scikit-learn
+- scipy
+- pandas
+- pillow
+- seaborn
+- h5py
+- pip:
+  - tensorflow<=1.13.1
+  - keras<=2.2.4
+  - coremltools
